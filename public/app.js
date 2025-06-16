@@ -19,9 +19,21 @@ class GoldPriceApp {
     async loadCities() {
         try {
             const response = await fetch('/api/cities');
+            
+            // Check if response is ok and contains JSON
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             this.cities = await response.json();
         } catch (error) {
             console.error('Failed to load cities:', error);
+            this.cities = []; // Fallback to empty array
         }
     }
 
@@ -156,6 +168,17 @@ class GoldPriceApp {
         
         try {
             const response = await fetch(`/api/city/${encodeURIComponent(cityName)}`);
+            
+            // Check if response is ok and contains JSON
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const data = await response.json();
             
             if (data.success === false) {
@@ -292,6 +315,17 @@ class GoldPriceApp {
         
         try {
             const response = await fetch('/api/all-prices?limit=12');
+            
+            // Check if response is ok and contains JSON
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                throw new Error('Response is not JSON');
+            }
+            
             const prices = await response.json();
             
             container.innerHTML = `
