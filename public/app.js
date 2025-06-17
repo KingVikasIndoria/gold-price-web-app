@@ -6,21 +6,25 @@ class GoldPriceApp {
     }
 
     async init() {
-        await this.loadCities();
-        this.setupRouter();
-        this.handleRoute();
-        
-        // Handle browser back/forward
-        window.addEventListener('popstate', () => {
+        try {
+            await this.loadCities();
+            this.setupRouter();
             this.handleRoute();
-        });
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', () => {
+                this.handleRoute();
+            });
+        } catch (error) {
+            console.error('Failed to initialize app:', error);
+            this.renderError('Failed to initialize the application');
+        }
     }
 
     async loadCities() {
         try {
             const response = await fetch('/api/cities');
             
-            // Check if response is ok and contains JSON
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -31,9 +35,11 @@ class GoldPriceApp {
             }
             
             this.cities = await response.json();
+            console.log(`Loaded ${this.cities.length} cities`);
         } catch (error) {
             console.error('Failed to load cities:', error);
-            this.cities = []; // Fallback to empty array
+            this.cities = [];
+            throw error;
         }
     }
 
@@ -98,7 +104,7 @@ class GoldPriceApp {
                 <div id="featuredPrices">
                     <div class="loading">
                         <div class="spinner"></div>
-                        Loading featured cities...
+                        <p>Loading featured cities...</p>
                     </div>
                 </div>
             </div>
@@ -112,15 +118,15 @@ class GoldPriceApp {
         const app = document.getElementById('app');
         app.innerHTML = `
             <div class="container">
-                <div style="text-align: center; padding: 2rem 0; color: white;">
-                    <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">All Cities</h1>
-                    <p style="font-size: 1.2rem; opacity: 0.9;">Choose a city to view live gold prices</p>
+                <div class="page-header">
+                    <h1>All Cities</h1>
+                    <p>Choose a city to view live gold prices</p>
                 </div>
                 
                 <div class="cities-grid">
                     ${this.cities.map(city => `
                         <a href="/city/${encodeURIComponent(city)}" class="city-link">
-                            <i class="fas fa-map-marker-alt" style="margin-right: 0.5rem; color: #f6ad55;"></i>
+                            <i class="fas fa-map-marker-alt" style="color: #f6ad55;"></i>
                             ${city}
                         </a>
                     `).join('')}
@@ -153,7 +159,7 @@ class GoldPriceApp {
                     <div id="cityPriceData">
                         <div class="loading">
                             <div class="spinner"></div>
-                            Loading gold prices for ${cityName}...
+                            <p>Loading gold prices for ${cityName}...</p>
                         </div>
                     </div>
                 </div>
@@ -169,7 +175,6 @@ class GoldPriceApp {
         try {
             const response = await fetch(`/api/city/${encodeURIComponent(cityName)}`);
             
-            // Check if response is ok and contains JSON
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -221,6 +226,7 @@ class GoldPriceApp {
                 </div>
             `;
         } catch (error) {
+            console.error('Error loading city price:', error);
             container.innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -253,6 +259,8 @@ class GoldPriceApp {
     setupSearch() {
         const searchInput = document.getElementById('citySearch');
         const suggestions = document.getElementById('searchSuggestions');
+        
+        if (!searchInput || !suggestions) return;
         
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -316,7 +324,6 @@ class GoldPriceApp {
         try {
             const response = await fetch('/api/all-prices?limit=12');
             
-            // Check if response is ok and contains JSON
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -365,10 +372,15 @@ class GoldPriceApp {
                 </div>
             `;
         } catch (error) {
+            console.error('Error loading featured prices:', error);
             container.innerHTML = `
                 <div class="error-message">
-                    Failed to load featured prices. Please try again later.
+                    Failed to load featured prices. Please check your connection and try again.
                 </div>
+                <button class="refresh-btn" onclick="app.loadFeaturedPrices()">
+                    <i class="fas fa-sync-alt"></i>
+                    Try Again
+                </button>
             `;
         }
     }
@@ -388,7 +400,36 @@ class GoldPriceApp {
             </div>
         `;
     }
+
+    renderError(message) {
+        const app = document.getElementById('app');
+        app.innerHTML = `
+            <div class="container">
+                <div style="text-align: center; padding: 4rem 0; color: white;">
+                    <h1 style="font-size: 2rem; margin-bottom: 1rem;">Error</h1>
+                    <p style="font-size: 1.2rem; margin-bottom: 2rem;">${message}</p>
+                    <button class="refresh-btn" onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i>
+                        Reload Page
+                    </button>
+                </div>
+            </div>
+        `;
+    }
 }
 
-// Initialize the app
-const app = new GoldPriceApp();
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new GoldPriceApp();
+});
+
+// Fallback initialization
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        if (!window.app) {
+            window.app = new GoldPriceApp();
+        }
+    });
+} else {
+    window.app = new GoldPriceApp();
+}

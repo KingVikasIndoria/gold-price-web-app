@@ -40,6 +40,7 @@ body {
     font-size: 1.5rem;
     font-weight: 700;
     color: #2d3748;
+    text-decoration: none;
 }
 
 .nav-brand i {
@@ -79,6 +80,23 @@ main {
     padding: 0 2rem;
 }
 
+/* Loading Screen */
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    color: white;
+    text-align: center;
+}
+
+.loading-screen p {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
 /* Hero Section */
 .hero {
     text-align: center;
@@ -91,6 +109,10 @@ main {
     font-weight: 700;
     margin-bottom: 1rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #fff, #f6ad55);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .hero p {
@@ -145,6 +167,8 @@ main {
     cursor: pointer;
     border-bottom: 1px solid #f1f5f9;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
 }
 
 .suggestion-item:hover {
@@ -173,6 +197,18 @@ main {
     transition: all 0.3s ease;
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.price-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f6ad55, #ed8936);
 }
 
 .price-card:hover {
@@ -207,6 +243,7 @@ main {
     padding: 0.75rem;
     background: #f8fafc;
     border-radius: 8px;
+    border-left: 4px solid #f6ad55;
 }
 
 .price-label {
@@ -246,6 +283,10 @@ main {
     font-weight: 700;
     color: #2d3748;
     margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, #2d3748, #f6ad55);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .city-subtitle {
@@ -268,6 +309,24 @@ main {
     text-align: center;
     box-shadow: 0 8px 32px rgba(246, 173, 85, 0.3);
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.price-detail-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.price-detail-card:hover::before {
+    opacity: 1;
 }
 
 .price-detail-card:hover {
@@ -308,6 +367,7 @@ main {
     gap: 0.5rem;
     margin: 2rem auto 0;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    text-decoration: none;
 }
 
 .refresh-btn:hover {
@@ -328,6 +388,7 @@ main {
     align-items: center;
     padding: 4rem;
     color: white;
+    flex-direction: column;
 }
 
 .spinner {
@@ -337,7 +398,7 @@ main {
     border-top: 4px solid white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -365,6 +426,10 @@ main {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .city-link:hover {
@@ -394,6 +459,55 @@ main {
 .footer-links {
     display: flex;
     gap: 2rem;
+}
+
+/* Error States */
+.error-message {
+    background: rgba(254, 226, 226, 0.95);
+    color: #c53030;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    text-align: center;
+    border: 1px solid rgba(254, 178, 178, 0.5);
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Page Headers */
+.page-header {
+    text-align: center;
+    padding: 2rem 0;
+    color: white;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.page-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
 }
 
 /* Responsive Design */
@@ -438,35 +552,35 @@ main {
         gap: 1rem;
         text-align: center;
     }
+    
+    .cities-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
 }
 
-/* Error States */
-.error-message {
-    background: rgba(254, 226, 226, 0.95);
-    color: #c53030;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
-    text-align: center;
-    border: 1px solid rgba(254, 178, 178, 0.5);
-}
-
-.back-btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 0.75rem 1.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-}
-
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .search-input {
+        font-size: 1rem;
+        padding: 0.875rem 1.25rem;
+    }
+    
+    .price-card {
+        padding: 1.5rem;
+    }
+    
+    .city-name {
+        font-size: 1.25rem;
+    }
+    
+    .price-amount {
+        font-size: 2rem;
+    }
 }

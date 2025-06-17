@@ -2,7 +2,6 @@ import express from 'express';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import http from 'http';
 import https from 'https';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,7 +10,7 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve static files
+// Serve static files from public directory
 app.use(express.static('public'));
 
 // Read cities list
@@ -77,6 +76,18 @@ async function fetchGoldPrice(city) {
         });
       });
 
+      req.setTimeout(10000, () => {
+        req.destroy();
+        resolve({
+          city: city,
+          price22k: 'Error',
+          price24k: 'Error',
+          unit: 'N/A',
+          success: false,
+          error: 'Request timeout'
+        });
+      });
+
       req.end();
     } catch (error) {
       resolve({
@@ -110,8 +121,9 @@ app.get('/api/city/:cityName', async (req, res) => {
 
 // API endpoint to get all cities with prices (for homepage)
 app.get('/api/all-prices', async (req, res) => {
-  const limit = parseInt(req.query.limit) || 20; // Limit to prevent too many API calls
-  const limitedCities = cities.slice(0, limit);
+  const limit = parseInt(req.query.limit) || 12;
+  const featuredCities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur'];
+  const limitedCities = featuredCities.slice(0, limit);
   
   const promises = limitedCities.map(city => fetchGoldPrice(city));
   const results = await Promise.all(promises);
@@ -119,11 +131,12 @@ app.get('/api/all-prices', async (req, res) => {
   res.json(results);
 });
 
-// Serve the main HTML file for all routes
+// Serve the main HTML file for all routes (SPA routing)
 app.get('*', (req, res) => {
   res.sendFile(join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Gold Price Tracker server running on port ${PORT}`);
+  console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
 });
