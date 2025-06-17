@@ -104,7 +104,8 @@ class GoldPriceApp {
                 <div id="featuredPrices">
                     <div class="loading">
                         <div class="spinner"></div>
-                        <p>Loading featured cities...</p>
+                        <p>Loading all cities' gold prices...</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">This may take a moment as we fetch prices for all ${this.cities.length} cities</p>
                     </div>
                 </div>
             </div>
@@ -322,7 +323,8 @@ class GoldPriceApp {
         const container = document.getElementById('featuredPrices');
         
         try {
-            const response = await fetch('/api/all-prices?limit=12');
+            // Fetch all cities' prices (no limit)
+            const response = await fetch('/api/all-prices');
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -337,7 +339,10 @@ class GoldPriceApp {
             
             container.innerHTML = `
                 <h2 style="text-align: center; color: white; margin-bottom: 2rem; font-size: 2rem;">
-                    Featured Cities
+                    All Cities Gold Prices
+                    <span style="font-size: 1rem; opacity: 0.8; display: block; margin-top: 0.5rem;">
+                        Showing ${prices.length} cities
+                    </span>
                 </h2>
                 <div class="cards-grid">
                     ${prices.map(price => `
@@ -349,11 +354,11 @@ class GoldPriceApp {
                             <div class="price-info">
                                 <div class="price-row">
                                     <span class="price-label">22K Gold</span>
-                                    <span class="price-value ${price.price22k === 'Error' ? 'error' : ''}">${price.price22k}</span>
+                                    <span class="price-value ${price.price22k === 'Error' || price.price22k === 'N/A' ? 'error' : ''}">${price.price22k}</span>
                                 </div>
                                 <div class="price-row">
                                     <span class="price-label">24K Gold</span>
-                                    <span class="price-value ${price.price24k === 'Error' ? 'error' : ''}">${price.price24k}</span>
+                                    <span class="price-value ${price.price24k === 'Error' || price.price24k === 'N/A' ? 'error' : ''}">${price.price24k}</span>
                                 </div>
                                 <div class="price-row">
                                     <span class="price-label">Unit</span>
@@ -365,17 +370,22 @@ class GoldPriceApp {
                 </div>
                 
                 <div style="text-align: center; margin-top: 3rem;">
-                    <a href="/cities" class="refresh-btn" style="text-decoration: none;">
-                        <i class="fas fa-list"></i>
-                        View All Cities
-                    </a>
+                    <button class="refresh-btn" onclick="app.loadFeaturedPrices()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh All Prices
+                    </button>
+                </div>
+                
+                <div style="text-align: center; margin-top: 2rem; color: rgba(255,255,255,0.7); font-size: 0.9rem;">
+                    <i class="fas fa-clock"></i>
+                    Last updated: ${new Date().toLocaleString()}
                 </div>
             `;
         } catch (error) {
             console.error('Error loading featured prices:', error);
             container.innerHTML = `
                 <div class="error-message">
-                    Failed to load featured prices. Please check your connection and try again.
+                    Failed to load gold prices. Please check your connection and try again.
                 </div>
                 <button class="refresh-btn" onclick="app.loadFeaturedPrices()">
                     <i class="fas fa-sync-alt"></i>

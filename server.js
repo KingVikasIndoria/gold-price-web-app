@@ -121,13 +121,28 @@ app.get('/api/city/:cityName', async (req, res) => {
 
 // API endpoint to get all cities with prices (for homepage)
 app.get('/api/all-prices', async (req, res) => {
-  const limit = parseInt(req.query.limit) || 12;
-  const featuredCities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur'];
-  const limitedCities = featuredCities.slice(0, limit);
+  const limit = parseInt(req.query.limit) || cities.length; // Default to all cities
+  const citiesToFetch = cities.slice(0, limit);
   
-  const promises = limitedCities.map(city => fetchGoldPrice(city));
-  const results = await Promise.all(promises);
+  console.log(`Fetching prices for ${citiesToFetch.length} cities...`);
   
+  // Process cities in batches to avoid overwhelming the API
+  const batchSize = 10;
+  const results = [];
+  
+  for (let i = 0; i < citiesToFetch.length; i += batchSize) {
+    const batch = citiesToFetch.slice(i, i + batchSize);
+    const batchPromises = batch.map(city => fetchGoldPrice(city));
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+    
+    // Add a small delay between batches to be respectful to the API
+    if (i + batchSize < citiesToFetch.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
+  console.log(`Successfully fetched prices for ${results.length} cities`);
   res.json(results);
 });
 
@@ -139,4 +154,5 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Gold Price Tracker server running on port ${PORT}`);
   console.log(`📊 API endpoints available at http://localhost:${PORT}/api/`);
+  console.log(`🏙️  Total cities available: ${cities.length}`);
 });
